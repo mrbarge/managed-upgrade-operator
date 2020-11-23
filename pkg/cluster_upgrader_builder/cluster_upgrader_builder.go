@@ -2,6 +2,7 @@ package cluster_upgrader_builder
 
 import (
 	"github.com/openshift/managed-upgrade-operator/pkg/eventmanager"
+	"github.com/openshift/managed-upgrade-operator/pkg/ocp_cluster_upgrader"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"github.com/go-logr/logr"
 
@@ -32,6 +33,12 @@ func (cub *clusterUpgraderBuilder) NewClient(c client.Client, cfm configmanager.
 	switch upgradeType {
 	case upgradev1alpha1.OSD:
 		cu, err := osd_cluster_upgrader.NewClient(c, cfm, mc, nc)
+		if err != nil {
+			return nil, err
+		}
+		return cu, nil
+	case upgradev1alpha1.OCP:
+		cu, err := ocp_cluster_upgrader.NewClient(c, cfm, mc, nc)
 		if err != nil {
 			return nil, err
 		}

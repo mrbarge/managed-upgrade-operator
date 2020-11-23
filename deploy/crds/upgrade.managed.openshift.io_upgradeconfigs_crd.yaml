@@ -98,6 +98,7 @@ spec:
                 to perform an upgrade of the cluster
               enum:
               - OSD
+              - OCP 
               type: string
             upgradeAt:
               description: Specify the upgrade start time

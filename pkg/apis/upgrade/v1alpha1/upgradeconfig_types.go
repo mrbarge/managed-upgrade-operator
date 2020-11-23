@@ -11,6 +11,7 @@ type UpgradeType string
 
 const (
 	OSD UpgradeType = "OSD"
+	OCP UpgradeType = "OCP"
 )
 
 // UpgradeConfigSpec defines the desired state of UpgradeConfig and upgrade window and freeze window
@@ -322,3 +323,4 @@ func (histories *UpgradeHistories) SetHistory(history UpgradeHistory) {
 func init() {
 	SchemeBuilder.Register(&UpgradeConfig{}, &UpgradeConfigList{})
 }
+
