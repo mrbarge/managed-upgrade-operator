@@ -90,6 +90,7 @@ type upgradePolicy struct {
 	NextRun              string               `json:"next_run"`
 	PrevRun              string               `json:"prev_run"`
 	ClusterId            string               `json:"cluster_id"`
+	NodeDrainGracePeriod nodeDrainGracePeriod `json:"node_drain_grace_period"`
 }
 
 // Represents an unmarshalled Cluster List response from Cluster Services
