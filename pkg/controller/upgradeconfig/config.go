@@ -7,6 +7,11 @@ import (
 
 type config struct {
 	UpgradeWindow upgradeWindow `yaml:"upgradeWindow"`
+	UpgradeInfo upgradeInfo `yaml:"upgradeInfo"`
+}
+
+type upgradeInfo struct {
+	UpstreamURL string `yaml:"upstreamURL" default:"https://api.openshift.com/api/upgrades_info/v1/graph"`
 }
 
 type upgradeWindow struct {
@@ -30,4 +35,8 @@ func (cfg *config) GetUpgradeWindowTimeOutDuration() time.Duration {
 
 func (cfg *config) GetUpgradeWindowDelayTriggerDuration() time.Duration {
 	return time.Duration(cfg.UpgradeWindow.DelayTrigger) * time.Minute
+}
+
+func (cfg *config) GetUpstreamURL() string {
+	return cfg.UpgradeInfo.UpstreamURL
 }

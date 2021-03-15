@@ -167,8 +167,15 @@ func (r *ReconcileUpgradeConfig) Reconcile(request reconcile.Request) (reconcile
 			return reconcile.Result{}, err
 		}
 
+		cfm := r.configManagerBuilder.New(r.client, request.Namespace)
+		cfg := &config{}
+		err = cfm.Into(cfg)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
 		// Validate UpgradeConfig instance
-		validatorResult, err := validator.IsValidUpgradeConfig(instance, clusterVersion, reqLogger)
+		validatorResult, err := validator.IsValidUpgradeConfig(instance, clusterVersion, cfg.GetUpstreamURL(), reqLogger)
 		if err != nil {
 			reqLogger.Info("An error occurred while validating UpgradeConfig")
 			return reconcile.Result{}, err
@@ -184,13 +191,6 @@ func (r *ReconcileUpgradeConfig) Reconcile(request reconcile.Request) (reconcile
 			return reconcile.Result{}, nil
 		}
 		reqLogger.Info("UpgradeConfig validated and confirmed for upgrade.")
-
-		cfm := r.configManagerBuilder.New(r.client, request.Namespace)
-		cfg := &config{}
-		err = cfm.Into(cfg)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
 
 		reqLogger.Info("Checking if cluster can commence upgrade.")
 		schedulerResult := r.scheduler.IsReadyToUpgrade(instance, cfg.GetUpgradeWindowTimeOutDuration())

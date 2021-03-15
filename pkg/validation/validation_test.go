@@ -27,6 +27,7 @@ var _ = Describe("Validation of UpgradeConfig CR", func() {
 		testUpgradeConfig     *upgradev1alpha1.UpgradeConfig
 		testUpgradeConfigName types.NamespacedName
 		testClusterVersion    *configv1.ClusterVersion
+		testUpstreamURL		  string
 		testLogger            logr.Logger
 	)
 
@@ -40,6 +41,9 @@ var _ = Describe("Validation of UpgradeConfig CR", func() {
 
 		// testUpgradeConfig is used to test various fields for validation
 		testUpgradeConfig = testStructs.NewUpgradeConfigBuilder().WithNamespacedName(testUpgradeConfigName).GetUpgradeConfig()
+
+		// testUpstreamURL is used to represent the upstream URL for validation
+		testUpstreamURL = "http://test.fake.url"
 
 		// testClusterVersion is used to test various fields for validation
 		testClusterVersion = &configv1.ClusterVersion{
@@ -88,7 +92,7 @@ var _ = Describe("Validation of UpgradeConfig CR", func() {
 				// Set UpgradeAt as non RFC3339 format
 				testUpgradeConfig.Spec.UpgradeAt = "sometime tomorrow morning would be great thanks"
 
-				result, err := testValidator.IsValidUpgradeConfig(testUpgradeConfig, testClusterVersion, testLogger)
+				result, err := testValidator.IsValidUpgradeConfig(testUpgradeConfig, testClusterVersion, testUpstreamURL, testLogger)
 				Expect(err).Should(BeNil())
 				Expect(result.IsValid).Should(BeFalse())
 			})
@@ -99,7 +103,7 @@ var _ = Describe("Validation of UpgradeConfig CR", func() {
 					// Set version as empty string
 					// It shouldn't pick the first element, as it's older
 					testClusterVersion.Status.History[1].Version = ""
-					result, err := testValidator.IsValidUpgradeConfig(testUpgradeConfig, testClusterVersion, testLogger)
+					result, err := testValidator.IsValidUpgradeConfig(testUpgradeConfig, testClusterVersion, testUpstreamURL, testLogger)
 					Expect(err).ShouldNot(BeNil())
 					Expect(result.IsValid).Should(BeFalse())
 				})
@@ -110,7 +114,7 @@ var _ = Describe("Validation of UpgradeConfig CR", func() {
 				It("Validation is false and error is returned as NOT nil", func() {
 					// Set version as non semver
 					testUpgradeConfig.Spec.Desired.Version = "not a correct semver"
-					result, err := testValidator.IsValidUpgradeConfig(testUpgradeConfig, testClusterVersion, testLogger)
+					result, err := testValidator.IsValidUpgradeConfig(testUpgradeConfig, testClusterVersion, testUpstreamURL, testLogger)
 					Expect(err).Should(BeNil())
 					Expect(result.IsValid).Should(BeFalse())
 				})
@@ -120,7 +124,7 @@ var _ = Describe("Validation of UpgradeConfig CR", func() {
 					// Set version as non semver
 					testUpgradeConfig.Spec.Desired.Version = "4.4.4"
 					testClusterVersion.Status.History[0].Version = "not a correct semver"
-					result, err := testValidator.IsValidUpgradeConfig(testUpgradeConfig, testClusterVersion, testLogger)
+					result, err := testValidator.IsValidUpgradeConfig(testUpgradeConfig, testClusterVersion, testUpstreamURL, testLogger)
 					Expect(err).Should(BeNil())
 					Expect(result.IsValid).Should(BeFalse())
 				})

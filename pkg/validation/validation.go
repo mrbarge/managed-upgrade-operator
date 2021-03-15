@@ -25,7 +25,7 @@ func NewBuilder() ValidationBuilder {
 // Validator knows how to validate UpgradeConfig CRs.
 //go:generate mockgen -destination=mocks/mockValidation.go -package=mocks github.com/openshift/managed-upgrade-operator/pkg/validation Validator
 type Validator interface {
-	IsValidUpgradeConfig(uC *upgradev1alpha1.UpgradeConfig, cV *configv1.ClusterVersion, logger logr.Logger) (ValidatorResult, error)
+	IsValidUpgradeConfig(uC *upgradev1alpha1.UpgradeConfig, cV *configv1.ClusterVersion, upstreamURL string, logger logr.Logger) (ValidatorResult, error)
 }
 
 type validator struct{}
@@ -48,7 +48,7 @@ const (
 	VersionUpgrade
 )
 
-func (v *validator) IsValidUpgradeConfig(uC *upgradev1alpha1.UpgradeConfig, cV *configv1.ClusterVersion, logger logr.Logger) (ValidatorResult, error) {
+func (v *validator) IsValidUpgradeConfig(uC *upgradev1alpha1.UpgradeConfig, cV *configv1.ClusterVersion, upstreamURL string, logger logr.Logger) (ValidatorResult, error) {
 	// Validate upgradeAt as RFC3339
 	_, err := time.Parse(time.RFC3339, uC.Spec.UpgradeAt)
 	if err != nil {
@@ -131,7 +131,7 @@ func (v *validator) IsValidUpgradeConfig(uC *upgradev1alpha1.UpgradeConfig, cV *
 			Message:           "",
 		}, nil
 	}
-	upstreamURI, err := url.Parse(string(cV.Spec.Upstream))
+	upstreamURI, err := url.Parse(upstreamURL)
 	if err != nil {
 		return ValidatorResult{
 			IsValid:           false,
